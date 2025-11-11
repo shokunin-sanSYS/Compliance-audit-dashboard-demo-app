@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コンプライアンス証跡レジャー - 継続監査プラットフォーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0e1a;
+            color: #e1e8f0;
+            overflow-x: hidden;
+        }
+
+        /* タイトルバナー */
+        #titleBanner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1f35 0%, #0a0e1a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeOut 0.5s ease-out 2s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .banner-logo {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 50%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .banner-subtitle {
+            font-size: 1.3rem;
+            color: #7a8ba3;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+
+        .banner-line {
+            width: 300px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            margin: 2rem 0;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* メインコンテナ */
+        #mainApp {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in 2.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* ヘッダー */
+        header {
+            background: linear-gradient(135deg, #1a1f35 0%, #252d45 100%);
+            border-bottom: 1px solid #2d3548;
+            padding: 0 2rem;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: #7a8ba3;
+        }
+
+        .nav-tab:hover {
+            color: #00d4ff;
+        }
+
+        .nav-tab.active {
+            color: #00d4ff;
+            border-bottom-color: #00d4ff;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .status-text {
+            font-size: 0.9rem;
+            color: #7a8ba3;
+        }
+
+        /* メインコンテンツ */
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* グリッドレイアウト */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #1a1f35 0%, #252d45 100%);
+            border: 1px solid #2d3548;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 212, 255, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e1e8f0;
+        }
+
+        .card-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(0, 255, 136, 0.15);
+            color: #00ff88;
+        }
+
+        .badge-warning {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+            animation: warningPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .badge-danger {
+            background: rgba(255, 77, 77, 0.15);
+            color: #ff4d4d;
+        }
+
+        .badge-info {
+            background: rgba(0, 212, 255, 0.15);
+            color: #00d4ff;
+        }
+
+        /* メトリクス */
+        .metric {
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #7a8ba3;
+        }
+
+        .metric-change {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .change-positive {
+            color: #00ff88;
+        }
+
+        .change-negative {
+            color: #ff4d4d;
+        }
+
+        /* プログレスバー */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #1a1f35;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff 0%, #0066ff 100%);
+            transition: width 1s ease-out;
+            border-radius: 4px;
+        }
+
+        /* チャート */
+        .chart-container {
+            width: 100%;
+            height: 250px;
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* テーブル */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #1a1f35;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #7a8ba3;
+            border-bottom: 2px solid #2d3548;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #2d3548;
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        /* アラート */
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-radius: 8px;
+            background: rgba(255, 77, 77, 0.1);
+            border-left: 4px solid #ff4d4d;
+        }
+
+        .alert-item.critical {
+            animation: alertBlink 1s ease-in-out infinite;
+        }
+
+        @keyframes alertBlink {
+            0%, 100% { background: rgba(255, 77, 77, 0.1); }
+            50% { background: rgba(255, 77, 77, 0.25); }
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            color: #7a8ba3;
+            margin-right: 1rem;
+            min-width: 80px;
+        }
+
+        .alert-message {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        /* ボタン */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0066ff 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #2d3548;
+            color: #7a8ba3;
+        }
+
+        .btn-secondary:hover {
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+
+        /* タイムライン */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+            border-left: 2px solid #2d3548;
+            padding-left: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00d4ff;
+            box-shadow: 0 0 10px #00d4ff;
+        }
+
+        .timeline-time {
+            font-size: 0.8rem;
+            color: #7a8ba3;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content {
+            font-size: 0.9rem;
+        }
+
+        /* フィルター */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 0.8rem 1.2rem;
+            background: #1a1f35;
+            border: 1px solid #2d3548;
+            border-radius: 8px;
+            color: #e1e8f0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .filter-select:hover {
+            border-color: #00d4ff;
+        }
+
+        /* ステータスドット */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-active {
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        .status-warning {
+            background: #ffc107;
+            box-shadow: 0 0 8px #ffc107;
+        }
+
+        .status-error {
+            background: #ff4d4d;
+            box-shadow: 0 0 8px #ff4d4d;
+        }
+
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1f35 0%, #252d45 100%);
+            border: 1px solid #2d3548;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7a8ba3;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #ff4d4d;
+        }
+
+        .report-section {
+            margin-bottom: 2rem;
+        }
+
+        .report-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #00d4ff;
+        }
+
+        .report-item {
+            padding: 1rem;
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 3px solid #00d4ff;
+            margin-bottom: 0.8rem;
+            border-radius: 4px;
+        }
+
+        .report-label {
+            font-size: 0.85rem;
+            color: #7a8ba3;
+            margin-bottom: 0.3rem;
+        }
+
+        .report-value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                display: none;
+            }
+
+            header {
+                padding: 0 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- タイトルバナー -->
+    <div id="titleBanner">
+        <div class="banner-logo">Compliance Ledger</div>
+        <div class="banner-line"></div>
+        <div class="banner-subtitle">継続監査プラットフォーム</div>
+    </div>
+
+    <!-- メインアプリ -->
+    <div id="mainApp">
+        <header>
+            <div class="logo">Compliance Ledger</div>
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-page="dashboard">ダッシュボード</div>
+                <div class="nav-tab" data-page="audit">監査証跡</div>
+                <div class="nav-tab" data-page="compliance">コンプライアンス</div>
+                <div class="nav-tab" data-page="reports">レポート</div>
+            </div>
+            <div class="header-status">
+                <span class="status-indicator"></span>
+                <span class="status-text">システム稼働中</span>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- ダッシュボードページ -->
+            <div class="page active" id="dashboard">
+                <div class="grid">
+                    <!-- メトリクスカード1 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">監査証跡記録数</h3>
+                            <span class="card-badge badge-success">正常</span>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" id="auditCount">127,543</div>
+                            <div class="metric-label">総記録数</div>
+                            <div class="metric-change change-positive">+2,847 (今日)</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="auditProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- メトリクスカード2 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">改ざん検知</h3>
+                            <span class="card-badge badge-warning">要確認</span>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" id="tamperCount">3</div>
+                            <div class="metric-label">検知件数（24時間）</div>
+                            <div class="metric-change change-negative">+1 (前日比)</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 15%; background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%)"></div>
+                        </div>
+                    </div>
+
+                    <!-- メトリクスカード3 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">コンプライアンススコア</h3>
+                            <span class="card-badge badge-success">優良</span>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value" id="complianceScore">96.8%</div>
+                            <div class="metric-label">総合評価</div>
+                            <div class="metric-change change-positive">+0.3% (先週比)</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="complianceProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- リアルタイムアラート -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">リアルタイムアラート</h3>
+                        <span class="card-badge badge-danger">3件</span>
+                    </div>
+                    <div id="alertsContainer"></div>
+                </div>
+
+                <!-- チャート -->
+                <div class="grid" style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">証跡記録トレンド</h3>
+                            <span class="card-badge badge-info">過去7日間</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">規制対応状況</h3>
+                            <span class="card-badge badge-success">準拠</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="complianceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 監査証跡ページ -->
+            <div class="page" id="audit">
+                <div class="filters">
+                    <select class="filter-select">
+                        <option>全期間</option>
+                        <option>今日</option>
+                        <option>過去7日間</option>
+                        <option>過去30日間</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>全部門</option>
+                        <option>財務部</option>
+                        <option>人事部</option>
+                        <option>営業部</option>
+                        <option>IT部</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>全アクション</option>
+                        <option>データ作成</option>
+                        <option>データ更新</option>
+                        <option>データ削除</option>
+                        <option>アクセス</option>
+                    </select>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">監査証跡ログ</h3>
+                        <button class="btn btn-primary" onclick="generateReport()">レポート生成</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="auditTable">
+                            <thead>
+                                <tr>
+                                    <th>タイムスタンプ</th>
+                                    <th>ユーザー</th>
+                                    <th>部門</th>
+                                    <th>アクション</th>
+                                    <th>リソース</th>
+                                    <th>ステータス</th>
+                                    <th>整合性</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- コンプライアンスページ -->
+            <div class="page" id="compliance">
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">ISMAP対応状況</h3>
+                            <span class="card-badge badge-success">準拠</span>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">100%</div>
+                            <div class="metric-label">要件充足率</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">FISC対応状況</h3>
+                            <span class="card-badge badge-success">準拠</span>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">98.5%</div>
+                            <div class="metric-label">要件充足率</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 98.5%"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">ISO27001対応</h3>
+                            <span class="card-badge badge-success">準拠</span>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">100%</div>
+                            <div class="metric-label">管理策実施率</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">SOC2対応</h3>
+                            <span class="card-badge badge-success">準拠</span>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">97.2%</div>
+                            <div class="metric-label">統制実施率</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 97.2%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">データ系譜追跡</h3>
+                        <span class="card-badge badge-info">リアルタイム</span>
+                    </div>
+                    <div class="timeline" id="lineageTimeline"></div>
+                </div>
+            </div>
+
+            <!-- レポートページ -->
+            <div class="page" id="reports">
+                <div class="grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">監査レポート自動化</h3>
+                            <span class="card-badge badge-info">80%削減</span>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">3.2時間</div>
+                            <div class="metric-label">平均生成時間（従来: 16時間）</div>
+                        </div>
+                        <button class="btn btn-primary" style="margin-top: 1rem;" onclick="generateReport()">新規レポート生成</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">投資回収期間</h3>
+                            <span class="card-badge badge-success">目標達成</span>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">3.4ヶ月</div>
+                            <div class="metric-label">ROI回収期間</div>
+                            <div class="metric-change change-positive">目標: 3-4ヶ月</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">生成済みレポート</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>レポート名</th>
+                                    <th>種類</th>
+                                    <th>生成日時</th>
+                                    <th>対象期間</th>
+                                    <th>ステータス</th>
+                                    <th>アクション</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- レポート生成モーダル -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">監査レポート</h2>
+                <span class="modal-close" onclick="closeReportModal()">&times;</span>
+            </div>
+            
+            <div class="report-section">
+                <h3 class="report-section-title">エグゼクティブサマリー</h3>
+                <div class="report-item">
+                    <div class="report-label">レポート期間</div>
+                    <div class="report-value" id="reportPeriod"></div>
+                </div>
+                <div class="report-item">
+                    <div class="report-label">総合コンプライアンススコア</div>
+                    <div class="report-value" id="reportScore"></div>
+                </div>
+                <div class="report-item">
+                    <div class="report-label">検出された問題</div>
+                    <div class="report-value" id="reportIssues"></div>
+                </div>
+            </div>
+
+            <div class="report-section">
+                <h3 class="report-section-title">監査証跡統計</h3>
+                <div class="report-item">
+                    <div class="report-label">総記録数</div>
+                    <div class="report-value" id="reportTotalRecords"></div>
+                </div>
+                <div class="report-item">
+                    <div class="report-label">改ざん検知件数</div>
+                    <div class="report-value" id="reportTampers"></div>
+                </div>
+                <div class="report-item">
+                    <div class="report-label">整合性検証率</div>
+                    <div class="report-value">100%</div>
+                </div>
+            </div>
+
+            <div class="report-section">
+                <h3 class="report-section-title">規制対応状況</h3>
+                <div class="report-item">
+                    <div class="report-label">ISMAP要件充足</div>
+                    <div class="report-value">100% 準拠</div>
+                </div>
+                <div class="report-item">
+                    <div class="report-label">FISC安全対策基準</div>
+                    <div class="report-value">98.5% 準拠</div>
+                </div>
+                <div class="report-item">
+                    <div class="report-label">ISO27001管理策</div>
+                    <div class="report-value">100% 実施</div>
+                </div>
+                <div class="report-item">
+                    <div class="report-label">SOC2統制</div>
+                    <div class="report-value">97.2% 実施</div>
+                </div>
+            </div>
+
+            <div class="report-section">
+                <h3 class="report-section-title">推奨事項</h3>
+                <div class="report-item">
+                    <div class="report-value">1. 検出された改ざん試行の詳細調査を実施</div>
+                </div>
+                <div class="report-item">
+                    <div class="report-value">2. アクセス権限の定期的な見直しを推奨</div>
+                </div>
+                <div class="report-item">
+                    <div class="report-value">3. データ系譜追跡の範囲を外部連携システムに拡大</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="downloadReport()">レポートをダウンロード</button>
+        </div>
+    </div>
+
+    <script>
+        // データシミュレーション
+        let auditCountValue = 127543;
+        let tamperCountValue = 3;
+        let complianceScoreValue = 96.8;
+
+        // タブ切り替え
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.page).classList.add('active');
+            });
+        });
+
+        // リアルタイム更新
+        function updateMetrics() {
+            // 監査証跡カウント
+            auditCountValue += Math.floor(Math.random() * 50) + 10;
+            document.getElementById('auditCount').textContent = auditCountValue.toLocaleString();
+            
+            // 改ざん検知
+            if (Math.random() > 0.95) {
+                tamperCountValue++;
+                document.getElementById('tamperCount').textContent = tamperCountValue;
+            }
+            
+            // コンプライアンススコア
+            complianceScoreValue += (Math.random() - 0.5) * 0.1;
+            complianceScoreValue = Math.max(95, Math.min(99, complianceScoreValue));
+            document.getElementById('complianceScore').textContent = complianceScoreValue.toFixed(1) + '%';
+            
+            // プログレスバー更新
+            setTimeout(() => {
+                document.getElementById('auditProgress').style.width = '85%';
+                document.getElementById('complianceProgress').style.width = complianceScoreValue + '%';
+            }, 100);
+        }
+
+        // アラート生成
+        function generateAlerts() {
+            const alertsContainer = document.getElementById('alertsContainer');
+            const alerts = [
+                { time: '14:23:15', message: '財務部でデータ削除操作を検知 - ユーザー: tanaka@company.com', critical: true },
+                { time: '14:20:42', message: '異常なアクセスパターンを検出 - IP: 203.0.113.45', critical: true },
+                { time: '14:18:09', message: '不正なデータ改ざん試行をブロック - リソース: /api/v1/records/12345', critical: true }
+            ];
+            
+            alertsContainer.innerHTML = alerts.map(alert => `
+                <div class="alert-item ${alert.critical ? 'critical' : ''}">
+                    <div class="alert-time">${alert.time}</div>
+                    <div class="alert-message">${alert.message}</div>
+                </div>
+            `).join('');
+        }
+
+        // 監査ログテーブル
+        function populateAuditTable() {
+            const tbody = document.getElementById('auditTableBody');
+            const users = ['tanaka@company.com', 'sato@company.com', 'suzuki@company.com', 'yamada@company.com'];
+            const departments = ['財務部', '人事部', '営業部', 'IT部'];
+            const actions = ['データ作成', 'データ更新', 'データ削除', 'アクセス'];
+            const resources = ['/api/v1/records', '/api/v1/users', '/api/v1/reports', '/api/v1/config'];
+            
+            let html = '';
+            for (let i = 0; i < 20; i++) {
+                const time = new Date(Date.now() - Math.random() * 86400000);
+                const timeStr = time.toLocaleTimeString('ja-JP');
+                const user = users[Math.floor(Math.random() * users.length)];
+                const dept = departments[Math.floor(Math.random() * departments.length)];
+                const action = actions[Math.floor(Math.random() * actions.length)];
+                const resource = resources[Math.floor(Math.random() * resources.length)];
+                const status = Math.random() > 0.1 ? 'success' : 'warning';
+                const statusText = status === 'success' ? '成功' : '要確認';
+                
+                html += `
+                    <tr>
+                        <td>${timeStr}</td>
+                        <td>${user}</td>
+                        <td>${dept}</td>
+                        <td>${action}</td>
+                        <td>${resource}</td>
+                        <td><span class="status-dot status-${status === 'success' ? 'active' : 'warning'}"></span>${statusText}</td>
+                        <td><span class="status-dot status-active"></span>検証済</td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        // レポートテーブル
+        function populateReportsTable() {
+            const tbody = document.getElementById('reportsTableBody');
+            const reports = [
+                { name: '月次監査レポート', type: 'ISMAP', date: '2025-11-07 09:00', period: '2025-10', status: '完了' },
+                { name: 'FISC対応報告書', type: 'FISC', date: '2025-11-05 14:30', period: '2025-10', status: '完了' },
+                { name: 'SOC2統制評価', type: 'SOC2', date: '2025-11-03 11:15', period: '2025-Q3', status: '完了' },
+                { name: '週次セキュリティ監査', type: 'セキュリティ', date: '2025-11-01 16:45', period: '2025-W44', status: '完了' }
+            ];
+            
+            tbody.innerHTML = reports.map(report => `
+                <tr>
+                    <td>${report.name}</td>
+                    <td>${report.type}</td>
+                    <td>${report.date}</td>
+                    <td>${report.period}</td>
+                    <td><span class="status-dot status-active"></span>${report.status}</td>
+                    <td><button class="btn btn-secondary" onclick="viewReport()">表示</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // データ系譜タイムライン
+        function populateLineageTimeline() {
+            const timeline = document.getElementById('lineageTimeline');
+            const events = [
+                { time: '14:25:30', content: 'データソース: 顧客管理DB → ETL処理実行' },
+                { time: '14:25:45', content: 'データ変換: 正規化処理 → 品質チェック完了' },
+                { time: '14:26:00', content: 'データウェアハウス: 格納完了 → インデックス作成' },
+                { time: '14:26:15', content: 'BI レポート: 可視化処理 → 配信完了' },
+                { time: '14:26:30', content: '監査ログ: 全工程の証跡記録完了' }
+            ];
+            
+            timeline.innerHTML = events.map(event => `
+                <div class="timeline-item">
+                    <div class="timeline-time">${event.time}</div>
+                    <div class="timeline-content">${event.content}</div>
+                </div>
+            `).join('');
+        }
+
+        // チャート描画
+        function drawCharts() {
+            // 証跡記録トレンドチャート
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            const trendCanvas = document.getElementById('trendChart');
+            
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const data = [18500, 19200, 18800, 20100, 21500, 19800, 20500];
+            
+            drawLineChart(trendCtx, trendCanvas, days, data);
+            
+            // 規制対応チャート
+            const complianceCtx = document.getElementById('complianceChart').getContext('2d');
+            const complianceCanvas = document.getElementById('complianceChart');
+            
+            const standards = ['ISMAP', 'FISC', 'ISO27001', 'SOC2', 'GDPR'];
+            const scores = [100, 98.5, 100, 97.2, 99.1];
+            
+            drawBarChart(complianceCtx, complianceCanvas, standards, scores);
+        }
+
+        function drawLineChart(ctx, canvas, labels, data) {
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            
+            // 背景
+            ctx.fillStyle = '#1a1f35';
+            ctx.fillRect(0, 0, width, height);
+            
+            // グリッド
+            ctx.strokeStyle = '#2d3548';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // ライン
+            const maxValue = Math.max(...data);
+            const minValue = Math.min(...data);
+            const range = maxValue - minValue;
+            
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            data.forEach((value, index) => {
+                const x = padding + (chartWidth / (data.length - 1)) * index;
+                const y = padding + chartHeight - ((value - minValue) / range) * chartHeight;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // ポイント
+            data.forEach((value, index) => {
+                const x = padding + (chartWidth / (data.length - 1)) * index;
+                const y = padding + chartHeight - ((value - minValue) / range) * chartHeight;
+                
+                ctx.fillStyle = '#00d4ff';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // ラベル
+            ctx.fillStyle = '#7a8ba3';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            labels.forEach((label, index) => {
+                const x = padding + (chartWidth / (data.length - 1)) * index;
+                ctx.fillText(label, x, height - 15);
+            });
+        }
+
+        function drawBarChart(ctx, canvas, labels, data) {
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            const barWidth = chartWidth / data.length * 0.6;
+            
+            // 背景
+            ctx.fillStyle = '#1a1f35';
+            ctx.fillRect(0, 0, width, height);
+            
+            // バー
+            data.forEach((value, index) => {
+                const x = padding + (chartWidth / data.length) * index + (chartWidth / data.length - barWidth) / 2;
+                const barHeight = (value / 100) * chartHeight;
+                const y = padding + chartHeight - barHeight;
+                
+                // グラデーション
+                const gradient = ctx.createLinearGradient(x, y, x, y + barHeight);
+                gradient.addColorStop(0, '#00d4ff');
+                gradient.addColorStop(1, '#0066ff');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // 値
+                ctx.fillStyle = '#e1e8f0';
+                ctx.font = 'bold 14px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(value + '%', x + barWidth / 2, y - 10);
+            });
+            
+            // ラベル
+            ctx.fillStyle = '#7a8ba3';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            labels.forEach((label, index) => {
+                const x = padding + (chartWidth / data.length) * index + chartWidth / data.length / 2;
+                ctx.fillText(label, x, height - 15);
+            });
+        }
+
+        // レポート生成
+        function generateReport() {
+            const modal = document.getElementById('reportModal');
+            const now = new Date();
+            const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+            
+            document.getElementById('reportPeriod').textContent = 
+                `${lastMonth.getFullYear()}年${lastMonth.getMonth() + 1}月1日 - ${lastMonthEnd.getDate()}日`;
+            document.getElementById('reportScore').textContent = complianceScoreValue.toFixed(1) + '%';
+            document.getElementById('reportIssues').textContent = tamperCountValue + '件';
+            document.getElementById('reportTotalRecords').textContent = auditCountValue.toLocaleString() + '件';
+            document.getElementById('reportTampers').textContent = tamperCountValue + '件';
+            
+            modal.classList.add('active');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('active');
+        }
+
+        function viewReport() {
+            generateReport();
+        }
+
+        function downloadReport() {
+            alert('レポートのダウンロードを開始しました。\n形式: PDF\nファイル名: compliance_report_2025_11.pdf');
+        }
+
+        // 初期化
+        window.addEventListener('load', () => {
+            updateMetrics();
+            generateAlerts();
+            populateAuditTable();
+            populateReportsTable();
+            populateLineageTimeline();
+            
+            // Canvas初期化
+            const canvases = document.querySelectorAll('canvas');
+            canvases.forEach(canvas => {
+                canvas.width = canvas.offsetWidth * 2;
+                canvas.height = canvas.offsetHeight * 2;
+            });
+            
+            drawCharts();
+            
+            // 定期更新
+            setInterval(updateMetrics, 5000);
+            setInterval(generateAlerts, 10000);
+            setInterval(() => {
+                drawCharts();
+            }, 8000);
+        });
+
+        // モーダル外クリックで閉じる
+        document.getElementById('reportModal').addEventListener('click', (e) => {
+            if (e.target.id === 'reportModal') {
+                closeReportModal();
+            }
+        });
+    </script>
+</body>
+</html>
